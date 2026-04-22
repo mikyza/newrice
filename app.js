@@ -1,5 +1,9 @@
 const AppConfig = {
-    API_URL: 'http://localhost:3000' 
+    // LOCAL: Use this when working directly on your computer
+    API_URL: 'http://localhost:3000',
+
+    // REMOTE: Use this for mobile testing or M-Pesa callbacks
+    API_URL: 'https://linwood-feudalistic-lorenzo.ngrok-free.dev' 
 };
 
 const state = {
@@ -50,49 +54,54 @@ const auth = {
         setTimeout(() => { modal.classList.add('invisible'); }, 300);
     },
 
-    showMode(mode) {
+showMode(mode) {
         this.mode = mode;
         const form = document.getElementById('authForm');
         const forgotForm = document.getElementById('forgotForm');
         const title = document.getElementById('authTitle');
+        const subtitle = document.getElementById('authSubtitle'); // Added subtitle support
         const nameInput = document.getElementById('authName');
         const btn = document.getElementById('authBtn');
         const toggleText = document.getElementById('authToggleText');
         const toggleLink = document.getElementById('authToggleLink');
         const forgotLink = document.getElementById('forgotLink');
 
+        // Hide both initially
         form.classList.add('hidden');
         forgotForm.classList.add('hidden');
 
         if (mode === 'login') {
             form.classList.remove('hidden');
             title.innerText = "Welcome Back";
+            subtitle.innerText = "Log in to access your premium pishori and rewards";
             nameInput.classList.add('hidden');
             nameInput.removeAttribute('required');
             btn.innerText = "Login Securely";
             forgotLink.classList.remove('hidden');
-            toggleText.innerText = "Need an account?";
-            toggleLink.innerText = "Register here";
+            toggleText.innerText = "New here?";
+            toggleLink.innerText = "Register now";
             toggleLink.onclick = () => this.showMode('register');
         } else if (mode === 'register') {
             form.classList.remove('hidden');
             title.innerText = "Create Account";
+            subtitle.innerText = "Join the community and start earning points";
             nameInput.classList.remove('hidden');
             nameInput.setAttribute('required', 'true');
-            btn.innerText = "Register";
+            btn.innerText = "Join RiceDirect";
             forgotLink.classList.add('hidden');
-            toggleText.innerText = "Already have one?";
+            toggleText.innerText = "Already a member?";
             toggleLink.innerText = "Login here";
             toggleLink.onclick = () => this.showMode('login');
         } else if (mode === 'forgot') {
             forgotForm.classList.remove('hidden');
             title.innerText = "Reset Password";
-            toggleText.innerText = "Remembered it?";
-            toggleLink.innerText = "Back to Login";
+            subtitle.innerText = "Follow the steps to secure your account";
+            toggleText.innerText = "Back to safety?";
+            toggleLink.innerText = "Return to Login";
             toggleLink.onclick = () => this.showMode('login');
         }
     },
-
+    
     async submit(e) {
         e.preventDefault();
         const email = document.getElementById('authEmail').value;
@@ -173,35 +182,55 @@ const ui = {
     },
 
     renderProducts(filter = "") {
-        const grid = document.getElementById('productGrid');
-        grid.innerHTML = state.products
-            .filter(p => p.name.toLowerCase().includes(filter.toLowerCase()))
-            .map(p => `
-                <div class="glass-card p-4 rounded-3xl group flex flex-col h-full">
-                    <div class="relative overflow-hidden rounded-2xl mb-4">
-                        <img src="${p.image_url}" class="h-48 w-full object-cover group-hover:scale-110 transition-transform duration-500" alt="${p.name}">
-                        ${p.stock < 10 ? `<span class="absolute top-2 left-2 bg-red-500 text-white text-xs font-bold px-3 py-1 rounded-full shadow-md">Low Stock</span>` : ''}
-                    </div>
-                    <div class="px-2 flex-grow flex flex-col">
-                        <h3 class="font-black text-xl text-organic-900 truncate">${p.name}</h3>
-                        <p class="text-xs font-bold text-organic-500 mb-4 uppercase tracking-wider">${p.category} • ${p.grade}</p>
-                        
-                        <div class="mt-auto">
-                            <div class="flex items-center justify-between mb-4 bg-organic-50/50 p-2 rounded-xl border border-organic-50">
-                                <span class="text-organic-800 font-black text-lg">$${p.price_per_kg}/<span class="text-sm font-normal text-gray-500">kg</span></span>
-                                <div class="flex items-center gap-1">
-                                    <input type="number" id="qty-${p.id}" value="1" min="1" max="${p.stock}" 
-                                        class="w-14 text-center bg-white border border-gray-200 rounded-lg py-1 outline-none focus:border-organic-500 font-bold">
-                                </div>
-                            </div>
-                            <button onclick="cartLogic.addToCart(${p.id})" 
-                                class="w-full bg-organic-100 text-organic-800 py-3 rounded-2xl text-sm font-black hover:bg-organic-600 hover:text-white active:scale-95 transition-all flex items-center justify-center gap-2 border border-organic-200 shadow-sm">
-                                <i class="fas fa-cart-plus"></i> Add to Basket
-                            </button>
-                        </div>
+    const grid = document.getElementById('productGrid');
+    grid.innerHTML = state.products
+        .filter(p => p.name.toLowerCase().includes(filter.toLowerCase()))
+        .map(p => `
+            <div class="glass-card group bg-white rounded-[2.5rem] p-5 transition-all duration-500 hover:shadow-[0_30px_60px_-15px_rgba(17,42,11,0.15)] flex flex-col h-full border border-organic-100/50">
+                
+                <div class="relative h-56 w-full mb-6 overflow-hidden rounded-[2rem] bg-organic-50">
+                    <img src="${p.image_url}" class="h-full w-full object-cover transform transition-transform duration-700 group-hover:scale-110" alt="${p.name}">
+                    
+                    <div class="absolute top-4 left-4 flex flex-col gap-2">
+                        <span class="bg-white/90 backdrop-blur-md text-organic-800 text-[10px] font-black px-3 py-1.5 rounded-full shadow-sm uppercase tracking-tighter border border-white">
+                            ${p.category}
+                        </span>
+                        ${p.stock < 15 ? `<span class="bg-red-500 text-white text-[10px] font-black px-3 py-1.5 rounded-full shadow-md uppercase">Limited Stock</span>` : ''}
                     </div>
                 </div>
-            `).join('');
+
+                <div class="flex-grow space-y-2 px-1">
+                    <div class="flex justify-between items-start">
+                        <h3 class="font-black text-xl text-organic-900 leading-tight group-hover:text-organic-600 transition-colors">${p.name}</h3>
+                        <div class="flex items-center text-organic-gold">
+                            <i class="fas fa-star text-[10px]"></i>
+                            <span class="text-xs font-black ml-1 text-organic-900">4.9</span>
+                        </div>
+                    </div>
+                    <p class="text-[11px] font-bold text-gray-400 uppercase tracking-widest">${p.grade} • Fresh Harvest</p>
+                </div>
+
+                <div class="mt-6 pt-4 border-t border-gray-50">
+                    <div class="flex items-center justify-between mb-4">
+                        <div>
+                            <span class="text-2xl font-black text-organic-900">$${p.price_per_kg}</span>
+                            <span class="text-xs font-bold text-gray-400">/kg</span>
+                        </div>
+                        
+                        <div class="flex items-center bg-gray-50 rounded-xl p-1 border border-gray-100">
+                            <input type="number" id="qty-${p.id}" value="1" min="1" max="${p.stock}" 
+                                class="w-10 text-center bg-transparent text-sm font-black outline-none appearance-none">
+                        </div>
+                    </div>
+                    
+                    <button onclick="cartLogic.addToCart(${p.id})" 
+                        class="w-full bg-organic-900 text-white py-4 rounded-2xl font-black text-sm hover:bg-organic-600 active:scale-[0.96] transition-all shadow-xl shadow-organic-900/10 flex items-center justify-center gap-3">
+                        <i class="fas fa-shopping-basket text-xs opacity-50"></i>
+                        Add to Basket
+                    </button>
+                </div>
+            </div>
+        `).join('');
     },
 
     toggleCart() {
@@ -211,9 +240,41 @@ const ui = {
         cartLogic.renderItems();
     },
 
-    toast(msg, type = "info") {
-        alert(msg); // Replace with a fancy toast notification system if desired
-    }
+   toast(msg, type = "success") {
+    const container = document.getElementById('toastContainer');
+    if (!container) return; // Safety check
+
+    const toast = document.createElement('div');
+    
+    // Modern Green (Success) vs Modern Red (Error)
+    const bgColor = type === "success" ? "bg-organic-900" : "bg-red-600";
+    const icon = type === "success" ? "fa-circle-check" : "fa-circle-exclamation";
+
+    // Premium styling: Glassmorphism + heavy shadows
+    toast.className = `${bgColor} text-white px-6 py-4 rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.3)] border border-white/10 flex items-center gap-4 transform -translate-y-10 opacity-0 transition-all duration-500 pointer-events-auto`;
+    
+    toast.innerHTML = `
+        <i class="fas ${icon} text-organic-500 text-xl"></i>
+        <p class="text-sm font-bold flex-1">${msg}</p>
+        <button onclick="this.parentElement.remove()" class="opacity-50 hover:opacity-100 text-xs">
+            <i class="fas fa-times"></i>
+        </button>
+    `;
+
+    container.appendChild(toast);
+
+    // Trigger Animation
+    setTimeout(() => {
+        toast.classList.remove('-translate-y-10', 'opacity-0');
+        toast.classList.add('translate-y-0', 'opacity-100');
+    }, 10);
+
+    // Auto-remove after 4 seconds
+    setTimeout(() => {
+        toast.classList.add('opacity-0', '-translate-y-10');
+        setTimeout(() => toast.remove(), 500);
+    }, 4000);
+}
 };
 
 const cartLogic = {
