@@ -29,6 +29,22 @@
         .glass-card:hover { transform: translateY(-4px); box-shadow: 0 10px 25px -5px rgba(74, 124, 65, 0.2); border-color: #4a7c41; }
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .modal-overlay { background: rgba(17, 42, 11, 0.7); backdrop-filter: blur(4px); }
+        /* Hide number input arrows for a cleaner UI */
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+/* Add a very subtle "shimmer" effect to images */
+.glass-card img {
+    filter: saturate(1.1);
+}
+
+/* Ensure the grid gap is wide enough for the new shadows */
+#productGrid {
+    gap: 2.5rem;
+}
     </style>
 </head>
 <body class="bg-organic-50 text-organic-900 min-h-screen flex flex-col">
@@ -292,37 +308,61 @@
         </div>
     </div>
 
-    <div id="authModal" class="fixed inset-0 z-[300] modal-overlay invisible flex items-center justify-center px-4">
-        <div class="bg-white p-8 rounded-3xl w-full max-w-sm transform scale-95 opacity-0 transition-all duration-300 shadow-2xl" id="authBox">
-            <div class="flex justify-between items-center mb-6">
-                <h3 class="text-2xl font-black text-organic-900" id="authTitle">Login</h3>
-                <button onclick="auth.hideModal()" class="text-gray-400 hover:text-red-500 bg-gray-50 p-2 rounded-full transition-colors"><i class="fas fa-times"></i></button>
+   <div id="authModal" class="fixed inset-0 z-[300] invisible flex items-center justify-center px-4 transition-all duration-300">
+    <div class="absolute inset-0 bg-organic-900/60 backdrop-blur-sm transition-opacity" onclick="auth.hideModal()"></div>
+
+    <div class="relative bg-white/95 backdrop-blur-2xl p-8 md:p-12 rounded-[2.5rem] w-full max-w-md transform scale-95 opacity-0 transition-all duration-300 shadow-[0_32px_64px_-12px_rgba(17,42,11,0.3)] pointer-events-auto" id="authBox">
+        
+        <div class="flex justify-between items-start mb-8">
+            <div>
+                <h3 class="text-3xl font-black text-organic-900 tracking-tight" id="authTitle">Welcome</h3>
+                <p class="text-gray-500 text-sm mt-1" id="authSubtitle">Join the RiceDirect community</p>
+            </div>
+            <button onclick="auth.hideModal()" class="text-gray-400 hover:text-red-500 hover:bg-red-50 p-3 rounded-full transition-all">
+                <i class="fas fa-times text-lg"></i>
+            </button>
+        </div>
+        
+        <form id="authForm" onsubmit="auth.submit(event)" class="space-y-5">
+            <div class="relative">
+                <i class="fas fa-user absolute left-4 top-4 text-gray-300"></i>
+                <input type="text" id="authName" placeholder="Full Name" class="w-full pl-12 pr-4 py-4 bg-gray-50 border border-gray-100 rounded-2xl hidden outline-none focus:ring-2 ring-organic-500/20 focus:bg-white transition-all">
+            </div>
+            <div class="relative">
+                <i class="fas fa-envelope absolute left-4 top-4 text-gray-300"></i>
+                <input type="email" id="authEmail" placeholder="Email Address" class="w-full pl-12 pr-4 py-4 bg-gray-50 border border-gray-100 rounded-2xl outline-none focus:ring-2 ring-organic-500/20 focus:bg-white transition-all" required>
+            </div>
+            <div class="relative">
+                <i class="fas fa-lock absolute left-4 top-4 text-gray-300"></i>
+                <input type="password" id="authPass" placeholder="Password" class="w-full pl-12 pr-4 py-4 bg-gray-50 border border-gray-100 rounded-2xl outline-none focus:ring-2 ring-organic-500/20 focus:bg-white transition-all" required>
             </div>
             
-            <form id="authForm" onsubmit="auth.submit(event)" class="space-y-4">
-                <input type="text" id="authName" placeholder="Full Name" class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl hidden outline-none focus:border-organic-500">
-                <input type="email" id="authEmail" placeholder="Email Address" class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl outline-none focus:border-organic-500 focus:ring-1 focus:ring-organic-500" required>
-                <input type="password" id="authPass" placeholder="Password" class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl outline-none focus:border-organic-500 focus:ring-1 focus:ring-organic-500" required>
-                <div class="text-right mt-1">
-                    <a href="#" onclick="auth.showMode('forgot')" id="forgotLink" class="text-xs text-organic-600 hover:underline font-bold">Forgot Password?</a>
-                </div>
-                <button type="submit" id="authBtn" class="w-full bg-organic-600 text-white font-bold py-3.5 rounded-xl mt-2 hover:bg-organic-800 shadow-md transition-colors">Login Securely</button>
-            </form>
-            
-            <form id="forgotForm" onsubmit="auth.submitForgot(event)" class="space-y-4 hidden">
-                <p class="text-sm text-gray-600 mb-4">Enter your registered email and your new desired password.</p>
-                <input type="email" id="resetEmail" placeholder="Your Account Email" class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl outline-none focus:border-organic-500" required>
-                <input type="password" id="resetPass" placeholder="New Password" class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl outline-none focus:border-organic-500" required>
-                <button type="submit" class="w-full bg-organic-600 text-white font-bold py-3.5 rounded-xl mt-2 hover:bg-organic-800 shadow-md transition-colors">Reset Password</button>
-            </form>
+            <div class="text-right">
+                <a href="#" onclick="auth.showMode('forgot')" id="forgotLink" class="text-xs text-organic-600 hover:text-organic-800 font-bold transition-colors">Forgot Password?</a>
+            </div>
 
-            <p class="text-center mt-6 text-sm text-gray-500 border-t pt-4">
-                <span id="authToggleText">Need an account?</span> 
-                <a href="#" onclick="auth.showMode('register')" id="authToggleLink" class="text-organic-600 font-bold hover:underline">Register here</a>
-            </p>
-        </div>
+            <button type="submit" id="authBtn" class="w-full bg-organic-900 text-white font-black py-4 rounded-2xl mt-2 hover:bg-organic-700 shadow-xl shadow-organic-900/20 active:scale-95 transition-all">
+                Login Securely
+            </button>
+        </form>
+        
+        <form id="forgotForm" onsubmit="auth.submitForgot(event)" class="space-y-5 hidden">
+            <div class="bg-organic-50 p-4 rounded-2xl border border-organic-100">
+                <p class="text-xs text-organic-800 leading-relaxed">Enter your registered email and your new desired password to reset.</p>
+            </div>
+            <input type="email" id="resetEmail" placeholder="Your Account Email" class="w-full p-4 bg-gray-50 border border-gray-100 rounded-2xl outline-none focus:ring-2 ring-organic-500/20" required>
+            <input type="password" id="resetPass" placeholder="New Password" class="w-full p-4 bg-gray-50 border border-gray-100 rounded-2xl outline-none focus:ring-2 ring-organic-500/20" required>
+            <button type="submit" class="w-full bg-organic-900 text-white font-black py-4 rounded-2xl shadow-lg">Reset Password</button>
+        </form>
+
+        <p class="text-center mt-10 text-sm text-gray-400 border-t pt-6">
+            <span id="authToggleText">Need an account?</span> 
+            <a href="#" onclick="auth.showMode('register')" id="authToggleLink" class="text-organic-600 font-black hover:underline ml-1">Register here</a>
+        </p>
     </div>
-
+</div>
+    </div>
+<div id="toastContainer" class="fixed top-8 left-1/2 -translate-x-1/2 z-[999] flex flex-col gap-3 pointer-events-none w-full max-w-sm px-4"></div>
     <script src="app.js"></script>
 </body>
 </html>
