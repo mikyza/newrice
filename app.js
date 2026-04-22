@@ -1,6 +1,5 @@
 const AppConfig = {
     // LOCAL: Use this when working directly on your computer
-    API_URL: 'http://localhost:3000',
 
     // REMOTE: Use this for mobile testing or M-Pesa callbacks
     API_URL: 'https://linwood-feudalistic-lorenzo.ngrok-free.dev' 
